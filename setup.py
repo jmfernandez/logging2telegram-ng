@@ -1,11 +1,20 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from os import path
+import os.path
 from setuptools import setup
+import sys
 
+# In this way, we are sure we are getting
+# the installer's version of the library
+# not the system's one
+setupDir = os.path.dirname(__file__)
+sys.path.insert(0, setupDir)
+
+from log2tg_ng import __version__ as log2tg_ng_version
 
 def long_description():
-	this_dir = path.abspath(path.dirname(__file__))
-	with open(path.join(this_dir, 'README.md'), encoding='utf-8') as f:
+	this_dir = os.path.abspath(os.path.dirname(__file__))
+	with open(os.path.join(this_dir, 'README.md'), encoding='utf-8') as f:
 		return f.read()
 
 
@@ -18,13 +27,13 @@ def requirements():
 
 
 setup(
-	name='logging2telegram',
-	version='1.0.4',
-	packages=['log2tg'],
-	url='https://github.com/tezmen/loging2telegram',
-	author='tezmen',
+	name='logging2telegram-ng',
+	version=log2tg_ng_version,
+	packages=['log2tg_ng'],
+	url='https://github.com/jmfernandez/loging2telegram-ng',
+	author='jmfernandez',
 	license='Apache License, Version 2.0, see LICENSE file',
-	description='Telegram logging handler',
+	description='Telegram logging handler (next generation)',
 	long_description=long_description(),
 	long_description_content_type='text/markdown',
 	install_requires=requirements(),

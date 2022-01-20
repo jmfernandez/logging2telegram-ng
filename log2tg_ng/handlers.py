@@ -1,17 +1,20 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 import logging
 import logging.config
-import requests
 from dataclasses import dataclass
 from typing import List
+import urllib.error
+import urllib.parse
+import urllib.request
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
 logger.propagate = True
 
-
 @dataclass(eq=False)
-class TelegramHandler(logging.Handler):
+class NgTelegramHandler(logging.Handler):
 	token: str
 	ids: List[int]
 	disable_notification: bool = False
@@ -24,9 +27,7 @@ class TelegramHandler(logging.Handler):
 
 	def emit(self, record: logging.LogRecord) -> None:
 		try:
-			requests_handler: logging.Logger = logging.getLogger('requests')
-			requests_handler.propagate = False
-			url: str = 'https://api.telegram.org/bot{}/sendMessage'.format(self.token)
+			url: str = f"https://api.telegram.org/bot{urllib.parse.quote(self.token, safe='')}/sendMessage"
 			for chat_id in self.ids:
 				payload = {
 					'chat_id':                  chat_id,
@@ -35,8 +36,10 @@ class TelegramHandler(logging.Handler):
 					'disable_notification':     self.disable_notification,
 					'parse_mode':               getattr(self.formatter, 'parse_mode', None),
 				}
-				requests.post(url, data=payload, timeout=self.timeout)
-				logger.debug(f'Send  logging-message to {chat_id} tg chat')
-			requests_handler.propagate = True
+				req = urllib.request.Request(url, urllib.parse.urlencode(payload).encode())
+				with urllib.request.urlopen(req, timeout=self.timeout):
+					pass
+				logger.debug(f'Sent logging-message to {chat_id} tg chat')
+		# except urllib.error.URLError:
 		except:
 			self.handleError(record)
